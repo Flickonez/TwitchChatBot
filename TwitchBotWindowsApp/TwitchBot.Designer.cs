@@ -1,6 +1,6 @@
 ﻿namespace TwitchBotWindowsApp
 {
-    partial class Form1
+    partial class TwitchBot
     {
         /// <summary>
         /// Required designer variable.
@@ -32,9 +32,8 @@
             this.chatBox = new System.Windows.Forms.TextBox();
             this.chatLabel = new System.Windows.Forms.Label();
             this.timer_clear = new System.Windows.Forms.Timer(this.components);
-            this.button1 = new System.Windows.Forms.Button();
+            this.updateButton = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
-            this.button2 = new System.Windows.Forms.Button();
             this.viewersBox = new System.Windows.Forms.ListBox();
             this.timer_addpoints = new System.Windows.Forms.Timer(this.components);
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
@@ -72,40 +71,28 @@
             this.timer_clear.Interval = 60000;
             this.timer_clear.Tick += new System.EventHandler(this.timer_clear_Tick);
             // 
-            // button1
+            // updateButton
             // 
-            this.button1.Font = new System.Drawing.Font("Verdana", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.button1.Location = new System.Drawing.Point(816, 65);
-            this.button1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(226, 97);
-            this.button1.TabIndex = 2;
-            this.button1.Text = "Clear; ViewerUPD; GiveAllBTC8m;";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.updateButton.Font = new System.Drawing.Font("Verdana", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.updateButton.Location = new System.Drawing.Point(816, 124);
+            this.updateButton.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.updateButton.Name = "updateButton";
+            this.updateButton.Size = new System.Drawing.Size(226, 97);
+            this.updateButton.TabIndex = 2;
+            this.updateButton.Text = "Clear and ViewersUPD";
+            this.updateButton.UseVisualStyleBackColor = true;
+            this.updateButton.Click += new System.EventHandler(this.updateButton_Click);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Palatino Linotype", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label1.Location = new System.Drawing.Point(642, 14);
+            this.label1.Location = new System.Drawing.Point(775, 14);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(428, 24);
+            this.label1.Size = new System.Drawing.Size(320, 24);
             this.label1.TabIndex = 3;
-            this.label1.Text = "Чат бота автоматически очищается каждые 60 сек";
-            // 
-            // button2
-            // 
-            this.button2.Font = new System.Drawing.Font("Verdana", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.button2.Location = new System.Drawing.Point(816, 194);
-            this.button2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(226, 72);
-            this.button2.TabIndex = 4;
-            this.button2.Text = "Subday Notifications";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.label1.Text = "The bot chat is cleared every 60 seconds";
             // 
             // viewersBox
             // 
@@ -159,14 +146,13 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1108, 697);
             this.Controls.Add(this.viewersBox);
-            this.Controls.Add(this.button2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.updateButton);
             this.Controls.Add(this.chatLabel);
             this.Controls.Add(this.chatBox);
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "Form1";
-            this.Text = "JesusAVGN Bot";
+            this.Text = "Twitch Bot";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
@@ -179,9 +165,8 @@
         private System.Windows.Forms.TextBox chatBox;
         private System.Windows.Forms.Label chatLabel;
         private System.Windows.Forms.Timer timer_clear;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button updateButton;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button button2;
         private System.Windows.Forms.ListBox viewersBox;
         private System.Windows.Forms.Timer timer_addpoints;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;

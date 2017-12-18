@@ -10,14 +10,16 @@ using TwitchCSharp.Models;
 
 namespace TwitchBotWindowsApp
 {
-    public partial class Form1 : Form
+    public partial class TwitchBot : Form
     {
+#warning Before using, replace all "streamer" on username of your stream channel and take a look into "Variables"
+          // And remember that if your bot was not added to the whitelist of the twitch, messages in /w might not come to some users
+         // To fix this, send an application to add your bot to the whitelist, or don't use /w, but in this case bot will clog your chat
         #region Variables
-        //
 
-        private static string userName = "jesusavgnbot";
-        private static string password = "oauth:1z3eltepu9ujkg9or9yggpfmi9y04v";
-        private static string TwitchClientID = "165053598";
+        private static string userName = "username"; //Bot's username
+        private static string password = "oauth:1a2b3c"; //Oauth password, take it here: https://twitchapps.com/tmi/
+        private static string TwitchClientID = "123456789"; // your client ID
         private static int amountint = 0;
         TwitchReadOnlyClient APIClient = new TwitchReadOnlyClient(TwitchClientID);
         TwitchROChat ChatClient = new TwitchROChat(TwitchClientID);
@@ -29,10 +31,10 @@ namespace TwitchBotWindowsApp
         bool commandSpamFilter = false;
         bool commandSpamFilter_kus = false;
         bool commandSpamFilter_gift = false;
-        //@"C:\subday_bot\content\
-        IniFile GamesIni = new IniFile(@"C:\subday_bot\content\games.ini");
-        IniFile PointsIni = new IniFile(@"C:\subday_bot\content\points.ini");
-        private static string htmlFile = @"C:\subday_bot\content\subday.html";
+        //if for example path to the bot folder is: @"C:\subday_bot\content\, then you need: 
+        IniFile GamesIni = new IniFile(@"C:\subday_bot\content\games.ini"); //path to the games.ini file
+        IniFile PointsIni = new IniFile(@"C:\subday_bot\content\points.ini"); //path to the points.ini file
+        private static string htmlFile = @"C:\subday_bot\content\subday.html"; //path to the subday.html file
         Random rnd = new Random();
         private static string username = "";
         private static string nickname = "";
@@ -40,12 +42,10 @@ namespace TwitchBotWindowsApp
 
         #endregion
 
-        public Form1()
+        public TwitchBot()
         {
             InitializeComponent();
         }
-
-        //TODO: Комментарии к каждому методу, свойству или переменной
 
         private void GetMessage()
         {
@@ -62,7 +62,7 @@ namespace TwitchBotWindowsApp
                 }
                 catch (Exception e)
                 {
-
+                    chatBox.Text = chatBox.Text + "Exception catched: " + e.Message + Environment.NewLine;
                 }
             }
 
@@ -73,7 +73,7 @@ namespace TwitchBotWindowsApp
             if (this.InvokeRequired) this.Invoke(new MethodInvoker(msg));
             else
             {
-                string[] separator = new string[] { "#jesusavgn :" };
+                string[] separator = new string[] { "#streamer :" };
                 string[] nickname_sep = new string[] { "@", "." };
                 string[] nickname_sep2 = new string[] { ":", "!" };
                 try
@@ -95,8 +95,11 @@ namespace TwitchBotWindowsApp
                         }
                     }
                 }
-                catch (Exception e) { }
-                //chatBox.Text = chatBox.Text + readData.ToString() + Environment.NewLine; - нахуя это
+                catch (Exception e)
+                {
+                    chatBox.Text = chatBox.Text + "Exception catched: " + e.Message + Environment.NewLine;
+                }
+               
             }
         }
 
@@ -107,10 +110,10 @@ namespace TwitchBotWindowsApp
 
             switch (command.ToLower())
             {
-                case "addgame":
-                    try
+                case "addgame": // command "addgame" allows to subs add any game to the list
+                    try        // example: /addgame Don't Starve
                     {
-                        if (readData.Contains("subscriber=0")) break;
+                        if (readData.Contains("subscriber=0")) break; //if non-sub try to add game nothing will happen
                         string tmp = fullcommand.Split(new[] { '!', ' ' }, StringSplitOptions.None)[1];
                         string tmp_2 = tmp.ToLower();
                         fullcommand = fullcommand.Replace(tmp, tmp_2);
@@ -122,63 +125,66 @@ namespace TwitchBotWindowsApp
                     }
                     catch (Exception e)
                     {
-                        irc.sendChatMessage("@" + username + ", что-то пошло не так. Игра, выбранная вами, не была добавлена в список!");
+                        chatBox.Text = chatBox.Text + "Exception catched: " + e.Message + Environment.NewLine;
+                        irc.sendChatMessage("@" + username + ", something went wrong. The game, you selected was not added to the list!");
                         break;
                     }
-                case "датьвсем":
-                    if (username == "jesusavgn")
+                case "givetoall": // give to all specified amount of points, command only for streamer, example: /givetoall 50
+                    if (username == "streamer")
                     {
                         amountint = 0;
-                        string amount = fullcommand.Replace("!датьвсем", "");
+                        string amount = fullcommand.Replace("!givetoall", "");
                         amount = amount.Trim();
                         if (amount == "") break;
                         try { amountint = Convert.ToInt32(amount); }
                         catch (Exception e)
-                        { }
+                        {
+                            chatBox.Text = chatBox.Text + "Exception catched: " + e.Message + Environment.NewLine;
+                        }
                         if (amountint < 0) break;
-                        irc.sendChatMessage("@" + username + ", даём всем пользователям по " + amountint + " BTC...");
+                        irc.sendChatMessage("@" + username + ", gives all users " + amountint + " points...");
                         ViewerListUpdate();
                         backgroundWorker2.RunWorkerAsync();
                     }
                     break;
-                case "донат":
+                case "donate": // Allows you to transfer points to other users, example: /donate Jepe34 100
                     if (!commandSpamFilter_gift)
                     {
                         commandSpamFilter_gift = true;
                         int howmuchpoints_int = 0;
-                        string pointsfrom = PointsIni.IniReadValue("#jesusavgn." + username, "Points");
+                        string pointsfrom = PointsIni.IniReadValue("#streamer." + username, "Points");
                         if (pointsfrom == "")
                         {
-                            irc.sendChatMessage("/w " + username + " У вас не хватает BTC!");
-                            PointsIni.IniWriteValue("#jesusavgn." + username, "Points", "0");
+                            irc.sendChatMessage("/w " + username + " you don't have enough points!");
+                            PointsIni.IniWriteValue("#streamer." + username, "Points", "0");
                             break;
                         }
                         int pointsfrom_int = Convert.ToInt32(pointsfrom);
                         if (pointsfrom_int < 50)
                         {
-                            irc.sendChatMessage("/w " + username + " Для того, чтобы передать BTC другому человеку, на вашем счету должно быть не менее 50 BTC!");
+                            irc.sendChatMessage("/w " + username + " To transfer points to another user on your account should be at least 50 points!");
                             break;
                         }
                         string[] separ = new string[] { " " };
                         string nickpointsto = fullcommand.Split(separ, StringSplitOptions.None)[1];
-                        string pointsto = PointsIni.IniReadValue("#jesusavgn." + nickpointsto, "Points");
+                        string pointsto = PointsIni.IniReadValue("#streamer." + nickpointsto, "Points");
                         if (pointsto == "") break;
                         string howmuchpoints = fullcommand.Split(separ, StringSplitOptions.None)[2];
-                        try { howmuchpoints_int = Convert.ToInt32(howmuchpoints); } catch (Exception e) { break; }
+                        try { howmuchpoints_int = Convert.ToInt32(howmuchpoints); } catch (Exception e) { chatBox.Text = chatBox.Text + "Exception catched: " + e.Message + Environment.NewLine; break; }
                         if (howmuchpoints_int <= pointsfrom_int && howmuchpoints_int > 0)
                         {
-                            AddPoints(username, -howmuchpoints_int, 0);
-                            AddPoints(nickpointsto, howmuchpoints_int, 0);
-                            irc.sendChatMessage(username + " подарил " + nickpointsto + " " + howmuchpoints_int + " BTC!");
+                            AddPoints(username, -howmuchpoints_int);
+                            AddPoints(nickpointsto, howmuchpoints_int);
+                            irc.sendChatMessage(username + " gave " + nickpointsto + " " + howmuchpoints_int + " points!");
                         }
                         else
                         {
-                            irc.sendChatMessage("/w " + username + " У вас не хватает BTC!");
+                            irc.sendChatMessage("/w " + username + " you don't have enough points!");
                         }
                     }
                     break;
-                case "дать":
-                    if (username == "jesusavgn")
+                case "give": // Only for streamer. Allows to give some points to the specific user, example: /give Jepe34 100
+                    if (username == "streamer")
                     {
                         ViewerListUpdate();
                         int howmuch_give_int = 0;
@@ -186,40 +192,45 @@ namespace TwitchBotWindowsApp
                         string nickpointsgive = fullcommand.Split(separ_give, StringSplitOptions.None)[1];
                         nickpointsgive = nickpointsgive.Trim().ToLower();
                         string howmuch_give = fullcommand.Split(separ_give, StringSplitOptions.None)[2];
-                        string pointsgive_check = PointsIni.IniReadValue("#jesusavgn." + nickpointsgive, "Points");
+                        string pointsgive_check = PointsIni.IniReadValue("#streamer." + nickpointsgive, "Points");
                         int findnick = viewersBox.FindStringExact(nickpointsgive + Environment.NewLine, -1);
-                        if (findnick == -1) { irc.sendChatMessage("@" + username + ", неверно указан ник человека, которому вы хотите добавить BTC."); break; }
-                        if (pointsgive_check == "") PointsIni.IniWriteValue("#jesusavgn." + nickpointsgive, "Points", "0");
-                        try { howmuch_give_int = Convert.ToInt32(howmuch_give); } catch (Exception e) { irc.sendChatMessage("@" + username + ", неверно указано количество BTC."); break; }
-                        if (howmuch_give_int <= 0)
+                        if (findnick == -1) { irc.sendChatMessage("@" + username + ", the nickname of the person you want to give points to is incorrect"); break; }
+                        if (pointsgive_check == "") PointsIni.IniWriteValue("#streamer." + nickpointsgive, "Points", "0");
+                        try { howmuch_give_int = Convert.ToInt32(howmuch_give); } catch (Exception e)
                         {
-                            irc.sendChatMessage("@" + username + ", неверно указано количество BTC.");
+                            chatBox.Text = chatBox.Text + "Exception catched: " + e.Message + Environment.NewLine;
+                            irc.sendChatMessage("@" + username + ", incorrect number of points!");
                             break;
                         }
-                        AddPoints(nickpointsgive, howmuch_give_int, 0);
-                        irc.sendChatMessage("@" + username + ", вы добавили " + howmuch_give_int + " BTC пользователю с ником " + nickpointsgive + ".");
+                        if (howmuch_give_int <= 0)
+                        {
+                            irc.sendChatMessage("@" + username + ", incorrect number of points!");
+                            break;
+                        }
+                        AddPoints(nickpointsgive, howmuch_give_int);
+                        irc.sendChatMessage("@" + username + ", you gave " + howmuch_give_int + " points to the " + nickpointsgive + ".");
                     }
                     break;
-                case "btc":
+                case "points": // Allows to see the number of your points
                     if (!commandSpamFilter)
                     {
                         commandSpamFilter = true;
-                        string yourpoints = PointsIni.IniReadValue("#jesusavgn." + username, "Points");
+                        string yourpoints = PointsIni.IniReadValue("#streamer." + username, "Points");
                         if (yourpoints == "")
                         {
                             yourpoints = "0";
-                            AddPoints(username, double.Parse(yourpoints), 0);
+                            AddPoints(username, double.Parse(yourpoints));
                         }
                         else
                         {
                             double thepoints = double.Parse(yourpoints);
                             if (thepoints < 0)
                             {
-                                AddPoints(username, 0 - thepoints, 0);
-                                yourpoints = PointsIni.IniReadValue("#jesusavgn." + username, "Points");
+                                AddPoints(username, 0 - thepoints);
+                                yourpoints = PointsIni.IniReadValue("#streamer." + username, "Points");
                             }
                         }
-                        irc.sendChatMessage("@" + username + ", У вас " + yourpoints + " BTC.");
+                        irc.sendChatMessage("@" + username + ", you have " + yourpoints + " points.");
                     }
                     else
                     {
@@ -237,19 +248,18 @@ namespace TwitchBotWindowsApp
             {
                 string[] separator = new string[] { @"\r\n" };
                 username = username.Trim().ToLower();
-                string choiced_game = GamesIni.IniReadValue("#jesusavgn." + username, "Game");
-                GamesIni.IniWriteValue("#jesusavgn." + username, "Game", game);
+                string choiced_game = GamesIni.IniReadValue("#streamer." + username, "Game");
+                GamesIni.IniWriteValue("#streamer." + username, "Game", game);
                 if (choiced_game == "")
                 {
-                    irc.sendChatMessage("@" + username + ", игра " + game + " была успешно добавлена!");
+                    irc.sendChatMessage("@" + username + ", game " + game + " was successful added!");
                     string[] htmlLine = File.ReadAllLines(htmlFile);
                     htmlLine[64] = htmlLine[64] + Environment.NewLine + @"<tr id=" + "\"" + username + "\"" + "><td>" + username + "</td><td>" + game + "</td></tr>";
                     File.WriteAllLines(htmlFile, htmlLine);
-
                 }
                 else
                 {
-                    irc.sendChatMessage("@" + username + ", вы успешно заменили " + choiced_game + " на " + game + " .");
+                    irc.sendChatMessage("@" + username + ", you successful replaced " + choiced_game + " with " + game + " .");
                     string[] htmlLine = File.ReadAllLines(htmlFile);
                     int k = 0;
                     for (int i = 0; i < htmlLine.Length; i++)
@@ -259,7 +269,6 @@ namespace TwitchBotWindowsApp
                             htmlLine[i] = "<tr id=" + "\"" + username + "\"" + "><td>" + username + "</td><td>" + game + "</td></tr>";
                             File.WriteAllLines(htmlFile, htmlLine);
                             break;
-                            k = 1;
                         }
                         if (k == 1) break;
                     }
@@ -267,55 +276,57 @@ namespace TwitchBotWindowsApp
             }
             catch (Exception e)
             {
-                GamesIni.IniWriteValue("#jesusavgn." + username, "Game", game);
-                irc.sendChatMessage("@" + username + ", игра " + game + " была успешно добавлена!");
+                chatBox.Text = chatBox.Text + "Exception catched: " + e.Message + Environment.NewLine;
+                GamesIni.IniWriteValue("#streamer." + username, "Game", game);
+                irc.sendChatMessage("@" + username + ", game " + game + " was successful added!");
                 string[] htmlLine = File.ReadAllLines(htmlFile);
                 htmlLine[64] = htmlLine[64] + Environment.NewLine + @"<tr id=" + "\"" + username + "\"" + "><td>" + username + "</td><td>" + game + "</td></tr>";
                 File.WriteAllLines(htmlFile, htmlLine);
             }
         }
 
-        private void AddPoints(string username, double points, double hrs)
+        private void AddPoints(string username, double points) 
         {
             double finalnumber = 0;
             try
             {
                 string[] separator = new string[] { @"\r\n" };
                 username = username.Trim().ToLower();
-                string pointsofuser = PointsIni.IniReadValue("#jesusavgn." + username, "Points");
+                string pointsofuser = PointsIni.IniReadValue("#streamer." + username, "Points");
                 double numberofpoints = double.Parse(pointsofuser);
                 finalnumber = Convert.ToDouble(numberofpoints + points);
-                PointsIni.IniWriteValue("#jesusavgn." + username, "Points", finalnumber.ToString());
+                PointsIni.IniWriteValue("#streamer." + username, "Points", finalnumber.ToString());
             }
             catch (Exception e)
             {
-                PointsIni.IniWriteValue("#jesusavgn." + username, "Points", points.ToString());
+                chatBox.Text = chatBox.Text + "Exception catched: " + e.Message + Environment.NewLine;
+                PointsIni.IniWriteValue("#streamer." + username, "Points", points.ToString());
             }
         }
 
-        private void Btc_PrivateMessage(string username)
+        private void Points_PrivateMessage(string username)
         {
-            string yourpoints = PointsIni.IniReadValue("#jesusavgn." + username, "Points");
+            string yourpoints = PointsIni.IniReadValue("#streamer." + username, "Points");
             if (yourpoints == "")
             {
                 yourpoints = "0";
-                AddPoints(username, double.Parse(yourpoints), 0);
+                AddPoints(username, double.Parse(yourpoints));
             }
             else
             {
                 double thepoints = double.Parse(yourpoints);
                 if (thepoints < 0)
                 {
-                    AddPoints(username, 0 - thepoints, 0);
-                    yourpoints = PointsIni.IniReadValue("#jesusavgn." + username, "Points");
+                    AddPoints(username, 0 - thepoints);
+                    yourpoints = PointsIni.IniReadValue("#streamer." + username, "Points");
                 }
             }
-            irc.sendChatMessage("/w " + username + " У вас " + yourpoints + " BTC.");
+            irc.sendChatMessage("/w " + username + " You have " + yourpoints + " points.");
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            irc.JoinRoom("jesusavgn");
+            irc.JoinRoom("streamer"); // nickname of streamer, connecting to the the chat
             chatThread = new Thread(GetMessage);
             chatThread.Start();
             timer_PingResponse.Start();
@@ -337,22 +348,16 @@ namespace TwitchBotWindowsApp
             chatBox.Clear();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void updateButton_Click(object sender, EventArgs e)
         {
             chatBox.Clear();
             ViewerListUpdate();
-            //backgroundWorker1.RunWorkerAsync();
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            irc.sendChatMessage("!subday");
-        }
-
-        private void ViewerListUpdate()
+        private void ViewerListUpdate() // Getting all viewers of the stream and adding them to the viewersBox
         {
             viewersBox.Items.Clear();
-            Chatters AllChatters = ChatClient.GetChatters("jesusavgn");
+            Chatters AllChatters = ChatClient.GetChatters("streamer");
             chatBox.Text += "Checking the viewer list..." + Environment.NewLine;
 
             foreach (string admin in AllChatters.Admins)
@@ -381,7 +386,7 @@ namespace TwitchBotWindowsApp
             }
         }
 
-        public void timer_addpoints_Tick(object sender, EventArgs e)
+        public void timer_addpoints_Tick(object sender, EventArgs e) //timer to adding points, it runs every 8 minutes and add from 6 to 12 points to every user, wathing the stream
         {
             ViewerListUpdate();
             backgroundWorker1.RunWorkerAsync();
@@ -389,11 +394,11 @@ namespace TwitchBotWindowsApp
 
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
         {
-            if (APIClient.IsLive("jesusavgn"))
+            if (APIClient.IsLive("streamer")) // checking stream online
             {
                 foreach (string username in viewersBox.Items)
                 {
-                    AddPoints(username, rnd.Next(6, 13), 8);
+                    AddPoints(username, rnd.Next(6, 13));
                 }
             }
         }
@@ -410,7 +415,7 @@ namespace TwitchBotWindowsApp
 
         private void backgroundWorker3_DoWork(object sender, DoWorkEventArgs e)
         {
-            Btc_PrivateMessage(nickname);
+            Points_PrivateMessage(nickname);
         }
 
         private void backgroundWorker_irc_response_DoWork(object sender, DoWorkEventArgs e)
