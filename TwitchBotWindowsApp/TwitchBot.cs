@@ -7,7 +7,7 @@ using System.Threading;
 using TwitchCSharp.Clients;
 using TwitchCSharp.Models;
 
-
+// app
 namespace TwitchBotWindowsApp
 {
     public partial class TwitchBot : Form
