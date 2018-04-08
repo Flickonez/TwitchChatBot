@@ -1,0 +1,79 @@
+<html>
+<title>Games for SubDay</title>
+<head>
+<style>
+   td{
+   width : 50%;
+   }
+   table {
+    width: 100%;
+    border-collapse: collapse;
+   }
+   td, th {
+    padding: 3px;
+    border: 1px solid #000;
+   }
+   th {
+    background: #afd792; 
+    color: #333; 
+   }
+   tbody tr:hover {
+    background: #f3bd48; 
+    color: #fff; 
+   }
+   iframe {
+    position: absolute; 
+	top : 15px;
+    right: 15px; 
+    line-height: 0px;
+   }
+   
+  
+  
+  input{
+  position: relative;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  }
+</style>
+
+<script>	
+function cplottopickwinner() {      
+ var trs = document.getElementById("latestData").getElementsByTagName("tr");
+ var rand = Math.floor( Math.random() * trs.length );
+ document.getElementById('winners').appendChild(trs[rand]);
+}
+</script>
+  
+</head>
+
+<body>
+
+<input type="button" value="GO!" onclick="cplottopickwinner(document.search)">
+<br>
+<b> Winners: </b>
+<table style="width:calc(100% - 450px)">
+
+    <tbody id="winners">
+    </tbody>
+    
+</table>
+<br>
+<b> Votes: </b>
+
+<table id="latestData" style="width:calc(100% - 450px)">
+	
+<tr id="trostinochka"><td>trostinochka</td><td>minecraft:story mode 2 season</td></tr>
+<tr id="dammmnnn"><td>dammmnnn</td><td>The Walking Dead: The Game</td></tr>
+	
+<tr id="nickolys"><td>nickolys</td><td>Afraid of Monsters</td></tr>
+<tr id="prishvin93"><td>prishvin93</td><td>H1Z1</td></tr>
+	
+	
+</table>
+
+<br>
+<br>
+<br>
+</body>
+</html>
