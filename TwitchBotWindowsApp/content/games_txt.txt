@@ -1,4 +1,0 @@
-﻿<tr id="nickolys"><td>nickolys</td><td>Afraid of Monsters</td></tr>
-<tr id="prishvin93"><td>prishvin93</td><td>H1Z1</td></tr>
-<tr id="trostinochka"><td>trostinochka</td><td>minecraft:story mode 2 season</td></tr>
-<tr id="dammmnnn"><td>dammmnnn</td><td>The Walking Dead: The Game</td></tr>
